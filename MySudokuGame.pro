@@ -15,3 +15,4 @@ HEADERS += MySudokuGenerater.h  \
 SOURCES+=MySudokuGenerater.cpp \
     test.cpp \
     MySudokuSolver.cpp
+

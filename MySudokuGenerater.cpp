@@ -6,22 +6,24 @@ int MySudokuGenerater::Init()
         Grid[i]=0;
 
     Grid[0*9+3]=8;
-    //Grid[0*9+5]=1;
-    //Grid[1*9+7]=4;
-    //Grid[1*9+8]=3;
-    //Grid[2*9+0]=5;
-    //Grid[3*9+4]=7;
-    //Grid[3*9+6]=8;
-    //Grid[4*9+6]=1;
-    //Grid[5*9+1]=2;
-    //Grid[5*9+4]=3;
-    //Grid[6*9+0]=6;
-    //Grid[6*9+7]=7;
-    //Grid[6*9+8]=5;
-    //Grid[7*9+2]=3;
-    //Grid[7*9+3]=4;
-    //Grid[8*9+3]=2;
-    //Grid[8*9+6]=6;
+    Grid[0*9+5]=1;
+    Grid[1*9+7]=4;
+    Grid[1*9+8]=3;
+    Grid[2*9+0]=5;
+    Grid[3*9+4]=7;
+    Grid[3*9+6]=8;
+    Grid[4*9+6]=1;
+    Grid[5*9+1]=2;
+    Grid[5*9+4]=3;
+    Grid[6*9+0]=6;
+    Grid[6*9+7]=7;
+    Grid[6*9+8]=5;
+    Grid[7*9+2]=3;
+    Grid[7*9+3]=4;
+    Grid[8*9+3]=2;
+    Grid[8*9+6]=6;
+    //SeedGrid();
+
     srand(time(NULL));
     return 0;
 }
@@ -112,7 +114,7 @@ int MySudokuGenerater::Generate()
             break;
         }
     }
-    //NumberReplace();
+    NumberReplace();
     return 0;
 }
 int MySudokuGenerater::swap(int& i,int& j)
@@ -148,7 +150,7 @@ int MySudokuGenerater::Print()
 }
 int MySudokuGenerater::SeedGrid()
 {
-    int newGrid[81]={1,2,7,4,9,3,0,0,5,
+    int newGrid[81]={1,2,0,4,9,3,0,0,5,
                      0,0,0,0,1,0,0,0,0,
                      0,0,0,0,8,6,3,0,0,
                      6,5,3,7,0,0,0,9,8,
