@@ -1,10 +1,10 @@
 #pragma once
 #include <stdlib.h>
 #include <cstring>
-
+#include <vector>
 #define My_Debug
 #define NewApproach
-#define MyStepShow
+//#define MyStepShow
 #ifdef My_Debug
 #include <iostream>
 #include <iomanip>
@@ -15,18 +15,16 @@ public:
     MySudokuSolver(){Init();}
     ~MySudokuSolver(){if(Grid) delete Grid;}
     int importGrid(int* Grid);
-    int SolveWithGuess(){Guess(1,1);}
-    int SolveWithSearch(){GuessWithSearch(1,1);}
+    int SolveWithSearch();
     int Search();
+    int setClue(int number);
 #ifdef My_Debug
-    int Output();
+    int Output(int *Grid_=NULL);
+    int OutputFillGrid();
 #endif
 private:
     int Init();
-
-    bool isRowSafe(int x,int y,int v);
-    bool isArraySafe(int x,int y,int v);
-    bool isBoxSafe(int x,int y,int v);
+    int ClueNumber(int *Grid);
     int GuessNotSafe(int x,int y,int v);
 
     int isSafe(int x,int y,int v);
@@ -39,7 +37,6 @@ private:
     int SearchRow(int r,int v);
     int SearchArray(int a,int v);
     int SearchBox(int b,int v);
-    int Guess(int xStart,int yStart);
     int GuessWithSearch(int xStart,int yStart);
     short RecordRow[9];
     short RecordArray[9];
@@ -48,6 +45,8 @@ private:
     short numRecordArray[9][9];
     short numRecordBox[9][9];
     int* Grid;
-    int Count;
     bool ChangeFlag;
+    std::vector<int*> FinalGrids;
+    int fillNumber;
+    int *filledGrid;
 };

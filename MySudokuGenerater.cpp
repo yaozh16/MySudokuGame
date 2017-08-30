@@ -6,24 +6,23 @@ int MySudokuGenerater::Init()
         Grid[i]=0;
 
     Grid[0*9+3]=8;
-    Grid[0*9+5]=1;
-    Grid[1*9+7]=4;
-    Grid[1*9+8]=3;
-    Grid[2*9+0]=5;
-    Grid[3*9+4]=7;
-    Grid[3*9+6]=8;
-    Grid[4*9+6]=1;
-    Grid[5*9+1]=2;
-    Grid[5*9+4]=3;
-    Grid[6*9+0]=6;
-    Grid[6*9+7]=7;
-    Grid[6*9+8]=5;
-    Grid[7*9+2]=3;
-    Grid[7*9+3]=4;
-    Grid[8*9+3]=2;
-    Grid[8*9+6]=6;
+    //Grid[0*9+5]=1;
+    //Grid[1*9+7]=4;
+    //Grid[1*9+8]=3;
+    //Grid[2*9+0]=5;
+    //Grid[3*9+4]=7;
+    //Grid[3*9+6]=8;
+    //Grid[4*9+6]=1;
+    //Grid[5*9+1]=2;
+    //Grid[5*9+4]=3;
+    //Grid[6*9+0]=6;
+    //Grid[6*9+7]=7;
+    //Grid[6*9+8]=5;
+    //Grid[7*9+2]=3;
+    //Grid[7*9+3]=4;
+    //Grid[8*9+3]=2;
+    //Grid[8*9+6]=6;
     srand(time(NULL));
-    //SeedGrid();
     return 0;
 }
 int MySudokuGenerater::towerSwap()
@@ -50,20 +49,22 @@ int MySudokuGenerater::floorSwap()
 }
 int MySudokuGenerater::arraySwap()
 {
-    int i=rand()%9;
+    int tower=rand()%3;
+    int i=rand()%3;
     int j=i;
-    while(j==i){j=rand()%9;}
+    while(j==i){j=rand()%3;}
     for(int y=0;y<9;y++)
-        swap(Grid[i+9*y],Grid[j+9*y]);
+        swap(Grid[i+3*tower+9*y],Grid[j+3*tower+9*y]);
     return 0;
 }
 int MySudokuGenerater::rowSwap()
 {
-    int i=rand()%9;
+    int floor=rand()%3;
+    int i=rand()%3;
     int j=i;
-    while(j==i){j=rand()%9;}
-    for(int y=0;y<9;y++)
-        swap(Grid[y+9*i],Grid[y+9*j]);
+    while(j==i){j=rand()%3;}
+    for(int t=0;t<9;t++)
+        swap(Grid[t+9*(i+3*floor)],Grid[t+9*(j+3*floor)]);
     return 0;
 }
 int MySudokuGenerater::NumberReplace()

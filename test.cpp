@@ -4,11 +4,11 @@
 int main()
 {
     MySudokuGenerater generater;
-
-
     MySudokuSolver solver;
-    solver.importGrid(generater.getGrid());
-    solver.Search();
-    solver.Output();
+
+        //generater.Generate();
+        solver.importGrid(generater.getGrid());
+        //solver.setClue(30);
+        solver.SolveWithSearch();
     std::cout<<"Done"<<std::endl;
 }

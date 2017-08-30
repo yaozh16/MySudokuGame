@@ -2,13 +2,14 @@
 #include <set>
 int MySudokuSolver::Init()
 {
+    fillNumber=-1;
+    if(filledGrid)
+        delete filledGrid;
     if(Grid)
         delete Grid;
-    Count=0;
     Grid=new int[81];
     for(int i=0;i<81;i++)
         Grid[i]=0;
-#ifdef NewApproach
     for(int i=0;i<9;i++)
     {
         RecordArray[i]=9;
@@ -22,10 +23,10 @@ int MySudokuSolver::Init()
             numRecordBox[i][j]=9;
             numRecordRow[i][j]=9;
         }
-#endif
 }
 int MySudokuSolver::importGrid(int* Grid_)
 {
+    Init();
     for(short y=0;y<9;y++)
         for(short x=0;x<9;x++)
         {
@@ -37,31 +38,6 @@ int MySudokuSolver::importGrid(int* Grid_)
     std::cout<<"--MySudokuSolver:Import puzzle:"<<std::endl;
     Output();
 #endif
-}
-bool MySudokuSolver::isRowSafe(int x,int y,int v)
-{
-    for(int i=0;i<9;i++)
-        if(Grid[(y-1)*9+i]==v)
-            return false;
-    return true;
-}
-bool MySudokuSolver::isArraySafe(int x,int y,int v)
-{
-    for(int i=0;i<9;i++)
-        if(Grid[i*9+x-1]==v)
-            return false;
-    return true;
-}
-bool MySudokuSolver::isBoxSafe(int x,int y,int v)
-{
-    //例如(3,2)的方格起始点为(0,0)
-    int Box_x=(x-1)/3*3;//方格左上角x起始点
-    int Box_y=(y-1)/3*3;//方格左上角y起始点
-    for(int i=0;i<3;i++)
-        for(int j=0;j<3;j++)
-            if(Grid[(Box_x+j)+(Box_y+i)*9]==v)
-                return false;
-    return true;
 }
 int  MySudokuSolver::isSafe(int x,int y,int v)
 {
@@ -75,7 +51,6 @@ int  MySudokuSolver::isSafe(int x,int y,int v)
     else
         return 0;
 #else
-    int ret=Grid[x+y*9-10];
     if(Grid[x-1+(y-1)*9]>0)//该点需要无数字
         return 5;
     if(numRecordArray[v-1][x-1]<=0)//该列需要无同数字
@@ -93,67 +68,18 @@ int  MySudokuSolver::isSafe(int x,int y,int v)
     return 0;
 #endif
 }
-int MySudokuSolver::Guess(int xStart,int yStart)
+int MySudokuSolver::Output(int *Grid_)
 {
-    if(xStart==10)
-    {
-        xStart=1;
-        yStart++;
-    }
-    if(yStart==10)
-    {
-        Count++;
-#ifdef My_Debug
-        std::cout<<"New Grid"<<Count<<std::endl;
-        Output();
-#endif
-        return 0;
-    }
-#ifndef NewApproach
-    if(Grid[xStart-1+(yStart-1)*9]>0)
-    {
-        Guess(xStart+1,yStart);
-    }
-    else
-
-        for(int i=1;i<10;i++)
-            if(isSafe(xStart,yStart,i)==0)
-            {
-
-                Grid[xStart-1+(yStart-1)*9]=i;
-                Guess(xStart+1,yStart);
-                Grid[xStart-1+(yStart-1)*9]=0;
-            }
-#else
-    while(1)
-    {
-        if(SearchArrays()==0&&SearchRows()==0&&SearchBoxes()==0)
-            break;
-    }
-    if(Grid[xStart-1+(yStart-1)*9]>0)
-    {
-        Guess(xStart+1,yStart);
-    }
-    else
-        for(int i=1;i<10;i++)
-            if(isSafe(xStart,yStart,i)==0)
-            {
-                int newGrid[81];
-                memcpy(newGrid,Grid,sizeof(int)*81);
-                SetGrid(xStart,yStart,i);
-                Guess(xStart+1,yStart);
-                memcpy(Grid,newGrid,sizeof(int)*81);
-            }
-#endif
-    return 0;
-}
-int MySudokuSolver::Output()
-{
+    if(Grid_==NULL)
+        Grid_=Grid;
+    int n=ClueNumber(Grid_);
+    if(n>0)
+        std::cout<<"Clue = "<<n<<std::endl;
     std::cout<<"------------------------------"<<std::endl;
     for(int x=0;x<9;x++)
         for(int y=0;y<9;y++)
         {
-            std::cout<<" "<<Grid[x*9+y]<<" ";
+            std::cout<<" "<<Grid_[x*9+y]<<" ";
             if(y%3==2)
                 std::cout<<"|";
             if(y==8)
@@ -163,6 +89,30 @@ int MySudokuSolver::Output()
                     std::cout<<"------------------------------"<<std::endl;
             }
         }
+    return 0;
+}
+int MySudokuSolver::OutputFillGrid()
+{
+    if(filledGrid==NULL)
+        return 1;
+    int n=ClueNumber(filledGrid);
+    if(n>0)
+        std::cout<<"Clue = "<<n<<std::endl;
+    std::cout<<"------------------------------"<<std::endl;
+    for(int x=0;x<9;x++)
+        for(int y=0;y<9;y++)
+        {
+            std::cout<<" "<<filledGrid[x*9+y]<<" ";
+            if(y%3==2)
+                std::cout<<"|";
+            if(y==8)
+            {
+                std::cout<<std::endl;
+                if(x%3==2)
+                    std::cout<<"------------------------------"<<std::endl;
+            }
+        }
+    return 0;
 }
 //设置需要做的numRecord
 //同num:行列设置为0
@@ -170,6 +120,8 @@ int MySudokuSolver::Output()
 //异num:同行同列，该位置原来是safe则减少1
 int MySudokuSolver::SetGrid(int x,int y,int v)
 {
+    if(fillNumber>0)
+        fillNumber-=1;
     ChangeFlag=true;
 #ifdef MyStepShow
     std::cout<<"("<<x<<","<<y<<")--"<<v<<std::endl;
@@ -236,12 +188,20 @@ int MySudokuSolver::SearchRows()
     for(int i=0;i<9;i++)
     {
         if(RecordRow[i]==1)
-            SearchRow(i,-1);
+        {
+            if(SearchRow(i,-1))
+                return 1;
+        }
         for(int v=0;v<9;v++)
+        {
             if(numRecordRow[v][i]==1)
-                SearchRow(i,v+1);
+            {
+                if(SearchRow(i,v+1))
+                    return 2;
+            }
+        }
     }
-
+    return 0;
 }
 int MySudokuSolver::SearchRow(int r,int v)
 {
@@ -261,9 +221,7 @@ int MySudokuSolver::SearchRow(int r,int v)
 #ifdef My_Debug
         if(s.size()!=1)
         {
-            Output();
-            std::cout<<"size error:"<<std::endl;
-            system("pause");
+            return 1;
         }
 #endif
         SetGrid(index+1,r+1,*(s.begin()));
@@ -281,24 +239,28 @@ int MySudokuSolver::SearchRow(int r,int v)
                 else
                 {
 #ifdef My_Debug
-                    {
-                        Output();
-                        std::cout<<"size error:Too much(row)"<<i+1<<","<<r+1<<"-"<<v<<std::endl;
-                        system("pause");
-                    }
+                    return 2;
 #endif
                 }
     }
+    return 0;
 }
 int MySudokuSolver::SearchArrays(){
     for(int i=0;i<9;i++)
     {
         if(RecordArray[i]==1)
-            SearchArray(i,-1);
+        {
+            if(SearchArray(i,-1))
+                return 1;
+        }
         for(int v=0;v<9;v++)
             if(numRecordArray[v][i]==1)
-                SearchArray(i,v+1);
-    };
+            {
+                if(SearchArray(i,v+1))
+                    return 2;
+            }
+    }
+    return 0;
 }
 int MySudokuSolver::SearchArray(int a,int v)
 {
@@ -316,17 +278,9 @@ int MySudokuSolver::SearchArray(int a,int v)
                 index=i;
         }
 #ifdef My_Debug
-        if(isSafe(a+1,index+1,*(s.begin())))
-        {
-            Output();
-            std::cout<<"array error:"<<a+1<<","<<index+1<<"-"<<*(s.begin())<<std::endl;
-            system("pause");
-        }
         if(s.size()!=1)
         {
-            Output();
-            std::cout<<"size error:"<<std::endl;
-            system("pause");
+            return 1;
         }
 #endif
         SetGrid(a+1,index+1,*(s.begin()));
@@ -345,26 +299,30 @@ int MySudokuSolver::SearchArray(int a,int v)
                 else
                 {
 #ifdef My_Debug
-                    {
-                        Output();
-                        std::cout<<"size error:Too much(array)"<<a+1<<","<<i+1<<std::endl;
-                        system("pause");
-                    }
+                    return 2;
 #endif
                 }
             }
     }
+    return 0;
 }
 int MySudokuSolver::SearchBoxes()
 {
     for(int i=0;i<9;i++)
     {
         if(RecordBox[i]==1)
-            SearchBox(i,-1);
+        {
+            if(SearchBox(i,-1))
+                return 1;
+        }
         for(int v=0;v<9;v++)
             if(numRecordBox[v][i]==1)
-                SearchBox(i+1,v+1);
+            {
+                if(SearchBox(i+1,v+1))
+                    return 2;
+            }
     }
+    return 0;
 }
 int MySudokuSolver::SearchBox(int b,int v)
 {
@@ -389,9 +347,7 @@ int MySudokuSolver::SearchBox(int b,int v)
 #ifdef My_Debug
         if(s.size()!=1)
         {
-            Output();
-            std::cout<<"size error:"<<std::endl;
-            system("pause");
+            return 1;
         }
 #endif
         SetGrid(index%9+1,index/9+1,*(s.begin()));
@@ -416,11 +372,7 @@ int MySudokuSolver::SearchBox(int b,int v)
                     else
                     {
     #ifdef My_Debug
-                        {
-                            Output();
-                            std::cout<<"size error:Too much(box)"<<temx<<","<<temy<<"-"<<v<<std::endl;
-                            system("pause");
-                        }
+                        return 2;
     #endif
                     }
 
@@ -428,6 +380,7 @@ int MySudokuSolver::SearchBox(int b,int v)
             temy-=3;
         }
     }
+    return 0;
 }
 int MySudokuSolver::Search()
 {
@@ -435,19 +388,22 @@ int MySudokuSolver::Search()
     while(ChangeFlag==true)
     {
         ChangeFlag=false;
-        SearchRows();
+        if(SearchRows())
+            return 1;
 
 #ifdef MyStepShow
         Output();
         system("pause");
 #endif
-        SearchBoxes();
+        if(SearchBoxes())
+            return 2;
 
 #ifdef MyStepShow
         Output();
         system("pause");
 #endif
-        SearchArrays();
+        if(SearchArrays())
+            return 3;
 
 #ifdef MyStepShow
         Output();
@@ -465,24 +421,21 @@ int MySudokuSolver::GuessWithSearch(int xStart,int yStart)
     }
     if(yStart==10)
     {
-        Count++;
-        std::cout<<"New Grid"<<Count<<std::endl;
-        Output();
-        if(Count%5==0)
-            system("pause");
-        return 0;
+        int* tem=new int[81];
+        memcpy(tem,Grid,sizeof(int)*81);
+        FinalGrids.push_back(tem);
     }
 
-    if(Grid[xStart-1+(yStart-1)*9]>0)
+    else if(Grid[xStart-1+(yStart-1)*9]>0)
     {
         GuessWithSearch(xStart+1,yStart);
     }
     else
         for(int i=1;i<10;i++)
         {
-            int ret=isSafe(xStart,yStart,i);
-            if(ret==0)
+            if(isSafe(xStart,yStart,i)==0)
             {
+                //保存
                 int newGrid[81];
                 short temRecordABR[27];
                 short temnumRecordABR[81*3];
@@ -495,9 +448,11 @@ int MySudokuSolver::GuessWithSearch(int xStart,int yStart)
                 memcpy(&(temnumRecordABR[18]),numRecordRow,sizeof(short)*81);
 
                 SetGrid(xStart,yStart,i);
-                Search();
-                GuessWithSearch(xStart+1,yStart);
-
+                if(Search()==0);
+                {
+                    GuessWithSearch(xStart+1,yStart);
+                }
+                //恢复
                 memcpy(Grid,newGrid,sizeof(int)*81);
                 memcpy(RecordArray,&(temRecordABR[0]),sizeof(short)*9);
                 memcpy(RecordBox,&(temRecordABR[9]),sizeof(short)*9);
@@ -506,6 +461,57 @@ int MySudokuSolver::GuessWithSearch(int xStart,int yStart)
                 memcpy(numRecordBox,&(temnumRecordABR[9]),sizeof(short)*81);
                 memcpy(numRecordRow,&(temnumRecordABR[18]),sizeof(short)*81);
             }
+            else
+                continue;
         }
     return 0;
+}
+int MySudokuSolver::setClue(int number)
+{
+    if(Grid==NULL)
+        return 1;
+    int currentclue=ClueNumber(Grid);
+    fillNumber=number-currentclue;
+    if(fillNumber<0)
+        fillNumber=0;
+    return 0;
+}
+int MySudokuSolver::SolveWithSearch()
+{
+    if(GuessWithSearch(1,1)==1)
+    {
+#ifdef My_Debug
+        std::cout<<"set done"<<std::endl;
+        OutputFillGrid();
+#endif
+    }
+    else if(FinalGrids.size()==0)
+    {
+#ifdef My_Debug
+        std::cout<<"no Solution"<<std::endl;
+        Output();
+#endif
+    }
+    else if(FinalGrids.size()>0)
+    {
+#ifdef My_Debug
+        std::cout<<"Solution ="<<FinalGrids.size()<<std::endl;
+        for(auto iter:FinalGrids)
+        {
+            Output(&(*(iter)));
+        }
+#endif
+    }
+}
+int MySudokuSolver::ClueNumber(int *Grid)
+{
+    if(Grid)
+    {
+        int count=0;
+        for(int i=0;i<81;i++)
+            if(Grid[i]!=0)
+                count+=1;
+        return count;
+    }
+    return -1;
 }
