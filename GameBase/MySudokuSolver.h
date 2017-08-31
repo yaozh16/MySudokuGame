@@ -23,24 +23,21 @@ class MySudokuSolver
 public:
     MySudokuSolver(){Init();}
     ~MySudokuSolver(){
-        if(Grid)
-            delete Grid;
-        if(filledGrid)
-            delete filledGrid;
-        if(FinalGrids.size()>0)
-            for(auto iter:FinalGrids)
-                delete &(*(iter));
+        Grid.clear();
+        filledGrid.clear();
+        for(int i=0;i<FinalGrids.size();i++)
+                FinalGrids[i].clear();
     }
     int importGrid(std::vector<int> Grid);
     int SolveWithSearch();
     int Search();
-    std::vector setClue(int number=30);
+    std::vector<int> setClue(int number=30);
 #ifdef My_Debug
     int Output(int *Grid_=NULL);
     int Output(bool *Grid);
 #endif
 private:
-    int Check(GridType Grid);
+    int Check(std::vector<int> Grid);
     int Init();
     int ClueNumber(std::vector<int> Grid);
 #ifdef My_Debug
@@ -221,8 +218,8 @@ public:
             for(int i=0;i<9;i++)
             {
                 solver->RecordRow.push_back(pRecordRow[i]);
-                solver->RecordArray[i].push_back(pRecordArray);
-                solver->RecordBox[i].push_back(pRecordBox);
+                solver->RecordArray.push_back(pRecordArray[i]);
+                solver->RecordBox.push_back(pRecordBox[i]);
                 std::vector<int> tr;
                 std::vector<int> ta;
                 std::vector<int> tb;

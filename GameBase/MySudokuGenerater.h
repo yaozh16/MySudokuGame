@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <random>
 #include <time.h>
+#include <vector>
 //#define My_Debug
 #define MyQt
 
@@ -13,28 +14,16 @@
 #endif
 
 
-#ifdef MyQt
-#include <QVector>
-#endif
 
 
 class MySudokuGenerater
 {
 public:
     MySudokuGenerater(){MySudokuGenerater::Init();}
-    ~MySudokuGenerater(){if(Grid) delete Grid;}
+    ~MySudokuGenerater(){if(Grid.size()>0) Grid.clear();}
     int Generate();
-    int* getGrid();
+    std::vector<int> getGrid();
     int Print();
-#ifdef MyQt
-    QVector<int> getGridQt()
-    {
-        QVector<int> tem;
-        for(int i=0;i<81;i++)
-            tem.push_back(Grid[i]);
-        return tem;
-    }
-#endif
 private:
     int Init();
     int SeedGrid();
@@ -43,7 +32,7 @@ private:
     int arraySwap();
     int rowSwap();
     int NumberReplace();
-    int* Grid;
-    int swap(int &x,int&y);
+    std::vector<int> Grid;
+    void swap(int &x,int&y);
 };
 

@@ -35,7 +35,7 @@ int MySudokuSolver::importGrid(std::vector<int> Grid_)
     for(int y=0;y<9;y++)
         for(int x=0;x<9;x++)
         {
-            intt index=x+y*9;
+            int index=x+y*9;
             if(Grid_[index]>0)
                 SetGrid(x+1,y+1,Grid_[index]);
         }
@@ -454,19 +454,17 @@ int MySudokuSolver::GuessWithSearch(int xStart,int yStart)
 std::vector<int> MySudokuSolver::setClue(int number)
 {
     std::vector<int> tem;
-    if(Grid==NULL)
+    if(Grid.size()!=81)
         return tem;
     number-=ClueNumber(Grid);
     if(number<=0)
         return tem;
-    if(filledGrid)
-        delete filledGrid;
-    filledGrid=new int [81];
-    memcpy(filledGrid,Grid,sizeof(int)*81);
+    filledGrid.clear();
+    filledGrid=Grid;
     GuessWithSearch(1,1);
     if(FinalGrids.size()<1)
         return tem;
-    int *pFinal=*(FinalGrids.begin());
+    std::vector<int> pFinal=*(FinalGrids.begin());
     while (number>0)
     {
         int x=rand()%9;
@@ -541,7 +539,7 @@ int MySudokuSolver::GetBoxOffset(int &stdx,int &stdy,int index)
     stdx=index%3*3+1;
     stdy=index/3*3+1;
 }
-int MySudokuSolver::Check(GridType Grid)
+int MySudokuSolver::Check(std::vector<int> Grid)
 {
 
     for(int i=0;i<9;i++)
