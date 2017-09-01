@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
+#include <set>
+#include <QDebug>
 #include <QGridLayout>
 #include <QPushButton>
 #include <QMainWindow>
@@ -8,8 +9,9 @@
 #include <QIcon>
 #include <QLCDNumber>
 #include <QVector>
-#include <GameBase/MySudokuGenerater.h>
-#include <GameBase/MySudokuSolver.h>
+#include <MyWidgets/MyGameOperation.h>
+#include <MyWidgets/MySudokuGrid.h>
+#include <MyWidgets/MySudokuNumberOperation.h>
 namespace Ui {
 class MainWindow;
 }
@@ -23,22 +25,16 @@ public:
     ~MainWindow();
 
 private:
-    //导入新的地图
-    int Import(int clue=30);
     QVector<QString> Number;
-    QVector<QVector<int>> MarkedNumbers;
     Ui::MainWindow *ui;
-    QWidget *SudokuGridLayoutWidget;
-    QWidget *SudokuOperationLayoutWidget;
-    QWidget *GameOperationLayoutWidget;
-    MySudokuGenerater generater;
-    MySudokuSolver solver;
-    QVector<int> Grid;
+    SudokuGridWidget *My_Sudoku_Grid_Widget;
+    SudokuOperationNumberWidget *My_Sudoku_Number_Widget;
+    GameOperationWidget *My_Game_Operation_Widget;
     int currentNumber;
+
     void SetGrid(int x, int y, int v,QString style="");
 public slots:
     int Init();
-    void OnGridClicked();
     void OnRestartClicked();
     void OnPauseClicked();
     void OnNumberClicked();

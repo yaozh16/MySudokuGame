@@ -1,0 +1,45 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/numbers/0.jpg</file>
+        <file>resources/numbers/1.jpg</file>
+        <file>resources/numbers/2.jpg</file>
+        <file>resources/numbers/3.jpg</file>
+        <file>resources/numbers/4.jpg</file>
+        <file>resources/numbers/5.jpg</file>
+        <file>resources/numbers/6.jpg</file>
+        <file>resources/numbers/7.jpg</file>
+        <file>resources/numbers/8.jpg</file>
+        <file>resources/numbers/9.jpg</file>
+        <file>resources/numbers/n0.png</file>
+        <file>resources/numbers/n1.png</file>
+        <file>resources/numbers/n2.png</file>
+        <file>resources/numbers/n3.png</file>
+        <file>resources/numbers/n4.png</file>
+        <file>resources/numbers/n5.png</file>
+        <file>resources/numbers/n6.png</file>
+        <file>resources/numbers/n7.png</file>
+        <file>resources/numbers/n8.png</file>
+        <file>resources/numbers/n9.png</file>
+        <file>resources/numbers/number1.png</file>
+        <file>resources/numbers/number2.png</file>
+        <file>resources/numbers/number3.png</file>
+        <file>resources/numbers/number4.png</file>
+        <file>resources/numbers/number5.png</file>
+        <file>resources/numbers/number6.png</file>
+        <file>resources/numbers/number7.png</file>
+        <file>resources/numbers/number8.png</file>
+        <file>resources/numbers/number9.png</file>
+        <file>resources/Cancel1.png</file>
+        <file>resources/clock.png</file>
+        <file>resources/Go.jpg</file>
+        <file>resources/Go1.png</file>
+        <file>resources/NCancel1.png</file>
+        <file>resources/pause.png</file>
+        <file>resources/restart1.png</file>
+        <file>resources/restarts.jpg</file>
+        <file>resources/start.jpg</file>
+        <file>resources/start.png</file>
+        <file>resources/start2.jpg</file>
+        <file>resources/start2.png</file>
+    </qresource>
+</RCC>

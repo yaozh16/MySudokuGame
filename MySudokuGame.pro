@@ -14,19 +14,23 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    #GameBase/MySudokuGenerater.cpp \
-    #GameBase/MySudokuSolver.cpp
     GameBase/MySudokuGenerater.cpp \
-    GameBase/MySudokuSolver.cpp
+    GameBase/MySudokuSolver.cpp \
+    MyWidgets/MyGameOperation.cpp \
+    MyWidgets/MySudokuGrid.cpp \
+    MyWidgets/MySudokuNumberOperation.cpp \
+    MyWidgets/MyGridButtonWithBoard.cpp
 
 HEADERS  += mainwindow.h \
-    #GameBase/MySudokuGenerater.h \
-    #GameBase/MySudokuSolver.h
     GameBase/MySudokuGenerater.h \
-    GameBase/MySudokuSolver.h
+    GameBase/MySudokuSolver.h \
+    MyWidgets/MyGameOperation.h \
+    MyWidgets/MySudokuGrid.h \
+    MyWidgets/MySudokuNumberOperation.h \
+    MyWidgets/MyGridButtonWithBoard.h
 
 FORMS    += mainwindow.ui
 
 RESOURCES += \
-    myresource.qrc
+    myqtresource.qrc
 
