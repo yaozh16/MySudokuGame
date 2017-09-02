@@ -28,6 +28,7 @@ private:
     QMenu* menu;
     bool menuOnFlag;
     bool PauseFlag;
+    int WorkingMode;
 signals:
     //发送该按钮当前已经被Mark的数字集合
     void BoardButton_ButtonSet(std::set<int> s, int v);
@@ -36,6 +37,15 @@ public slots:
     void BoardButton_OnBoardClicked();
     void BoardButton_ShowMenu();
     void BoardButton_Pause(bool pauseFlag);
+    void BoardButton_SetWorkingMode(int mode)
+    {
+        if(menuOnFlag)
+        {
+            menuOnFlag=false;
+            menu->close();
+        }
+        WorkingMode=mode;
+    }
 };
 
 #endif // MYGRIDBOARDMENU_H

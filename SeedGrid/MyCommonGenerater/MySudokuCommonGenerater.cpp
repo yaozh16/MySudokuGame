@@ -1,12 +1,15 @@
-#include "MySudokuGenerater.h"
+#include "MySudokuCommonGenerater.h"
 #include <fstream>
+#include <set>
+#include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string>
 int MySudokuGenerater::Init()
 {
     Grid.clear();
     for(int i=0;i<81;i++)
         Grid.push_back(0);
-
-    SeedGrid();
 
     srand(time(NULL));
     return 0;
@@ -55,10 +58,11 @@ int MySudokuGenerater::rowSwap()
 }
 int MySudokuGenerater::NumberReplace()
 {
-    int count=rand()%10+10;
+
     std::vector<int> a;
     for(int i=0;i<10;i++)
         a.push_back(i);
+    int count=rand()%10+10;
     for(int i=0;i<count;i++)
     {
         int x=rand()%9+1;
@@ -106,14 +110,13 @@ std::vector<int> MySudokuGenerater::getGrid()
 {
     return Grid;
 }
-int MySudokuGenerater::Print()
+int MySudokuGenerater::Print(std::vector<int> grid)
 {
-#ifdef My_Debug
     std::cout<<"------------------------------"<<std::endl;
     for(int x=0;x<9;x++)
         for(int y=0;y<9;y++)
         {
-            std::cout<<" "<<Grid[x*9+y]<<" ";
+            std::cout<<" "<<grid[x*9+y]<<" ";
             if(y%3==2)
                 std::cout<<"|";
             if(y==8)
@@ -123,17 +126,17 @@ int MySudokuGenerater::Print()
                    std::cout<<"------------------------------"<<std::endl;
             }
         }
-#endif
     return 0;
 }
 int MySudokuGenerater::SeedGrid()
 {
     std::string tem;
     std::ifstream fin;
-    int count=rand()%1400+40;
-    fin.open("SeedGrid/Seed1.txt");
+    int count=1466;
+    fin.open("Seed1.txt");
     for(int i=0;i<count;i++)
         std::getline(fin,tem);
+    std::cout<<"count="<<count<<std::endl;
     for(int i=0;i<81;i++)
         if(tem[i]!='.')
             Grid[i]=int(tem[i]-'0');
@@ -154,7 +157,7 @@ void MySudokuGenerater::Import(std::vector<int> newGrid)
 void MySudokuGenerater::SaveSeed(int i)
 {
     std::fstream f;
-    f.open(std::to_string(i)+".txt",std::ios_base::app);
+    f.open(std::to_string(i)+".dat",std::ios_base::app);
     for(int i=0;i<81;i++)
         f<<Grid[i]<<" ";
     f.close();

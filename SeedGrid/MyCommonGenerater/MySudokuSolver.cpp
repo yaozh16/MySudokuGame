@@ -46,11 +46,6 @@ int MySudokuSolver::importGrid(std::vector<int> Grid_)
             if(Grid_[index]>0)
                 SetGrid(x+1,y+1,Grid_[index]);
         }
-#ifdef My_Debug
-    std::cout<<"--MySudokuSolver:Import puzzle:"<<std::endl;
-    Output(Grid);
-    PauseDebug();
-#endif
     return 0;
 }
 int  MySudokuSolver::isSafe(int x,int y,int v)
@@ -517,48 +512,3 @@ int MySudokuSolver::Check(std::vector<int> Grid)
     }
     return 0;
 }
-#ifdef My_Debug
-int MySudokuSolver::Output(std::vector<int> Grid)
-{
-    int n=ClueNumber(Grid);
-    if(n>0)
-        std::cout<<"Clue = "<<n<<std::endl;
-    std::cout<<"------------------------------"<<std::endl;
-    for(int x=0;x<9;x++)
-        for(int y=0;y<9;y++)
-        {
-            std::cout<<" ";
-            if(Grid[x*9+y]>0)
-                std::cout<<Grid[x*9+y]<<" ";
-            else
-                std::cout<<"  ";
-            if(y%3==2)
-                std::cout<<"|";
-            if(y==8)
-            {
-                std::cout<<std::endl;
-                if(x%3==2)
-                    std::cout<<"------------------------------"<<std::endl;
-            }
-        }
-    return 0;
-}
-int MySudokuSolver::Output(std::vector<bool> Grid)
-{
-    std::cout<<"------------------------------"<<std::endl;
-    for(int x=0;x<9;x++)
-        for(int y=0;y<9;y++)
-        {
-            std::cout<<" "<<((Grid[x*9+y]==true)?"#":" ")<<" ";
-            if(y%3==2)
-                std::cout<<"|";
-            if(y==8)
-            {
-                std::cout<<std::endl;
-                if(x%3==2)
-                    std::cout<<"------------------------------"<<std::endl;
-            }
-        }
-    return 0;
-}
-#endif

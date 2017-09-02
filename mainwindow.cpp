@@ -7,7 +7,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 
     ui->setupUi(this);
+    this->setWindowIcon(QIcon("/resources/others/SudokuGame.jpg"));
 
+    this->setWindowTitle("My Sudoku Game");
     this->setFixedSize(620,640);
 
     My_Sudoku_Grid_Widget=new SudokuGridWidget(this);

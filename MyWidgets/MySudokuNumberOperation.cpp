@@ -23,8 +23,7 @@ SudokuOperationNumberWidget::SudokuOperationNumberWidget(QWidget *parent) : QWid
         btn->setFixedSize(QSize(50,50));
 
         QString style;
-        style+="QPushButton{";
-        style+="border-image: url(:/resources/numbers/"+QString::number(i)+".jpg);}";
+        style+="QPushButton{border-image: url(:/resources/numbers/"+QString::number(i)+".jpg);";
         style+="border:10px solid white;";
         style+="border-radius: 10px;";
         style+="}";

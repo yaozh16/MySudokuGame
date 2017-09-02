@@ -35,3 +35,4 @@ SOURCES += main.cpp \
 
 RESOURCES += \
     my.qrc
+

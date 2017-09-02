@@ -5,7 +5,8 @@
 MyGridButtonWithBoardMenu::MyGridButtonWithBoardMenu(QWidget *parent) :
     QPushButton(parent),
     menuOnFlag(false),
-    PauseFlag(false)
+    PauseFlag(false),
+    WorkingMode(0)
 {
     //状态和标记初始化
     States.clear();
@@ -145,20 +146,30 @@ void MyGridButtonWithBoardMenu::BoardButton_ShowMenu()
 {
     if(PauseFlag)
         return;
-    if(Marks.find(0)==Marks.end())
+    if(Marks.find(0)==Marks.end())//没有0
         return;
-    qDebug()<<"--BoardButton_ShowMenu()...menuOnFlag="<<(menuOnFlag?"true":"false");
-    if(menuOnFlag)
-    {
-        menuOnFlag=false;
-        menu->close();
-    }
+    if(WorkingMode==0)
+        if(menuOnFlag)
+        {
+            menuOnFlag=false;
+            menu->close();
+        }
+        else
+        {
+            menuOnFlag=true;
+            menu->exec(mapToGlobal(QPoint(60,0)));
+        }
     else
     {
-        menuOnFlag=true;
-        menu->exec(mapToGlobal(QPoint(60,0)));
+        for(int i=0;i<9;i++)
+           States[i]=false;
+        States[WorkingMode-1]=true;
+        Marks.clear();
+        Marks.insert(0);
+        Marks.insert(WorkingMode);
+        emit BoardButton_ButtonSet(Marks,WorkingMode);
+        BoardButton_UpdateBoard(Marks);
     }
-    qDebug()<<"\tmenuOnFlag to"<<(menuOnFlag?"true":"false");
 
 }
 void MyGridButtonWithBoardMenu::BoardButton_MarkFix(bool fix)

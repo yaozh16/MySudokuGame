@@ -48,5 +48,7 @@
         <file>resources/numbers/f7.png</file>
         <file>resources/numbers/f8.png</file>
         <file>resources/numbers/f9.png</file>
+        <file>SeedGrid/Seed1.txt</file>
+        <file>resources/others/SudokuGame.jpg</file>
     </qresource>
 </RCC>

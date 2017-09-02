@@ -91,7 +91,6 @@ void SudokuGridWidget::Grid_Import(int hardness)
 //保存clue
 void SudokuGridWidget::Grid_OnChangeGridSet(std::set<int> set_,int v)
 {
-    Grid_Select(0);
     qDebug()<<"--Grid_OnChangeGridSet()...";
     MyGridButtonWithBoardMenu *btn=qobject_cast<MyGridButtonWithBoardMenu*>(sender());
     QString name=btn->objectName();
@@ -243,13 +242,25 @@ void SudokuGridWidget::Check()
             qDebug()<<"Win!"<<endl;
             emit Grid_Finished();
             QMessageBox* box=new QMessageBox(this);
+            box->setWindowIconText("Great!");
             box->setText("You Win!");
+            box->setWindowIcon(QIcon(":/resources/others/SudokuGame.jpg"));
+            box->show();
+        }
+        else
+        {
+            qDebug()<<"Fail!"<<endl;
+            QMessageBox* box=new QMessageBox(this);
+            box->setWindowIconText("Sorry!");
+            box->setText("Please Check Again!");
+            box->setWindowIcon(QIcon(":/resources/others/SudokuGame.jpg"));
             box->show();
         }
     }
 }
 void SudokuGridWidget::Grid_Select(int v)
 {
+
     if(Pause)
         return;
     if(ImportFlag<2)
@@ -262,6 +273,7 @@ void SudokuGridWidget::Grid_Select(int v)
         {
             MyGridButtonWithBoardMenu* btn=Buttons[i];
             btn->SetColor("");
+            btn->BoardButton_SetWorkingMode(0);
         }
     }
     else//选中某个数字
@@ -269,6 +281,7 @@ void SudokuGridWidget::Grid_Select(int v)
         for(int i=0;i<81;i++)
         {
             MyGridButtonWithBoardMenu* btn=Buttons[i];
+            btn->BoardButton_SetWorkingMode(v);
             if(GridNumbers[i]==v)//该点恰好为同数字点
             {
                 btn->SetColor(QString("ss"));
