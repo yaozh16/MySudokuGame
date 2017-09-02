@@ -10,7 +10,6 @@
         <file>resources/numbers/7.jpg</file>
         <file>resources/numbers/8.jpg</file>
         <file>resources/numbers/9.jpg</file>
-        <file>resources/numbers/n0.png</file>
         <file>resources/numbers/n1.png</file>
         <file>resources/numbers/n2.png</file>
         <file>resources/numbers/n3.png</file>
@@ -29,17 +28,25 @@
         <file>resources/numbers/number7.png</file>
         <file>resources/numbers/number8.png</file>
         <file>resources/numbers/number9.png</file>
-        <file>resources/Cancel1.png</file>
-        <file>resources/clock.png</file>
-        <file>resources/Go.jpg</file>
-        <file>resources/Go1.png</file>
-        <file>resources/NCancel1.png</file>
-        <file>resources/pause.png</file>
-        <file>resources/restart1.png</file>
-        <file>resources/restarts.jpg</file>
-        <file>resources/start.jpg</file>
-        <file>resources/start.png</file>
-        <file>resources/start2.jpg</file>
-        <file>resources/start2.png</file>
+        <file>resources/numbers/s0.jpg</file>
+        <file>resources/numbers/ss0.jpg</file>
+        <file>resources/operation/Back.png</file>
+        <file>resources/operation/Forward.png</file>
+        <file>resources/operation/GoOn.png</file>
+        <file>resources/operation/NBack.png</file>
+        <file>resources/operation/NForward.png</file>
+        <file>resources/operation/Pause.png</file>
+        <file>resources/operation/Restart.png</file>
+        <file>resources/operation/Auto.png</file>
+        <file>resources/numbers/n10.png</file>
+        <file>resources/numbers/f1.png</file>
+        <file>resources/numbers/f2.png</file>
+        <file>resources/numbers/f3.png</file>
+        <file>resources/numbers/f4.png</file>
+        <file>resources/numbers/f5.png</file>
+        <file>resources/numbers/f6.png</file>
+        <file>resources/numbers/f7.png</file>
+        <file>resources/numbers/f8.png</file>
+        <file>resources/numbers/f9.png</file>
     </qresource>
 </RCC>

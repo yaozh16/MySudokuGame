@@ -6,7 +6,6 @@
 #include <QPushButton>
 #include <QMainWindow>
 #include <QLabel>
-#include <QIcon>
 #include <QLCDNumber>
 #include <QVector>
 #include <MyWidgets/MyGameOperation.h>
@@ -30,14 +29,9 @@ private:
     SudokuGridWidget *My_Sudoku_Grid_Widget;
     SudokuOperationNumberWidget *My_Sudoku_Number_Widget;
     GameOperationWidget *My_Game_Operation_Widget;
-    int currentNumber;
-
-    void SetGrid(int x, int y, int v,QString style="");
-public slots:
     int Init();
-    void OnRestartClicked();
-    void OnPauseClicked();
-    void OnNumberClicked();
+public slots:
+
 };
 
 #endif // MAINWINDOW_H

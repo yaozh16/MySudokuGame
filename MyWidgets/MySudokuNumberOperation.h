@@ -10,9 +10,11 @@ class SudokuOperationNumberWidget : public QWidget
     Q_OBJECT
 public:
     explicit SudokuOperationNumberWidget(QWidget *parent = 0);
-
+    QPushButton* PushButton_AutoStep;
 signals:
-
+    //是否把某个按键标出或者取消全部(0)
+    void Number_SelectBroadCast(int i);
+    void Number_AutoStep();
 public slots:
 };
 

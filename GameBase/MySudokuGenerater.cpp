@@ -1,4 +1,5 @@
 #include "MySudokuGenerater.h"
+#include <fstream>
 int MySudokuGenerater::Init()
 {
     Grid.clear();
@@ -143,7 +144,7 @@ int MySudokuGenerater::Print()
 }
 int MySudokuGenerater::SeedGrid()
 {
-    int newGrid[81]={1,2,0,4,9,3,0,0,5,
+    std::vector<int> newGrid={1,2,0,4,9,3,0,0,5,
                      0,0,0,0,1,0,0,0,0,
                      0,0,0,0,8,6,3,0,0,
                      6,5,3,7,0,0,0,9,8,
@@ -155,4 +156,21 @@ int MySudokuGenerater::SeedGrid()
     for(int i=0;i<81;i++)
         Grid[i]=newGrid[i];
     return 0;
+}
+void MySudokuGenerater::Import(std::vector<int> newGrid)
+{
+    if(newGrid.size()==81)
+    {
+        Grid.clear();
+        for(int i=0;i<81;i++)
+            Grid.push_back(newGrid[i]);
+    }
+}
+void MySudokuGenerater::SaveSeed(int i)
+{
+    std::fstream f;
+    f.open(std::to_string(i)+".dat",std::ios_base::app);
+    for(int i=0;i<81;i++)
+        f<<Grid[i]<<" ";
+    f.close();
 }

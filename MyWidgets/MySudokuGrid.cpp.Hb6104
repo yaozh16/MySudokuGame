@@ -1,19 +1,13 @@
 #include "MySudokuGrid.h"
 #include <iostream>
-#include <random>
-#include <time.h>
-#include <QMessageBox>
 //按键名[行][列]
 SudokuGridWidget::SudokuGridWidget(QWidget *parent) :
     QWidget(parent),
     Pause(false),
     selectNumber(0),
     ImportFlag(0),
-    FakeClick(false),
-    stepIndex(-1),
-    stepDirectionForward(true)
+    FakeClick(0)
 {
-    srand(time(NULL));
     Buttons.clear();
     QGridLayout* SudokuGridLayout=new QGridLayout;
     SudokuGridLayout->setSpacing(0);
@@ -39,7 +33,6 @@ SudokuGridWidget::SudokuGridWidget(QWidget *parent) :
             SudokuGridLayout->addWidget(button,(i+2)/3*4+(i-1)*60,(j+2)/3*4+(j-1)*60,60,60);
             //消息响应
             connect(button,SIGNAL(BoardButton_ButtonSet(std::set<int>,int)),this,SLOT(Grid_OnChangeGridSet(std::set<int>,int)));
-            connect(this,SIGNAL(Grid_Button_Pause(bool)),button,SLOT(BoardButton_Pause(bool)));
             Buttons.push_back(button);
         }
     setLayout(SudokuGridLayout);
@@ -47,51 +40,38 @@ SudokuGridWidget::SudokuGridWidget(QWidget *parent) :
 
 void SudokuGridWidget::Grid_Import(int hardness)
 {
-    FakeClick=false;
+    FakeClick=0;
     selectNumber=0;
     ImportFlag=1;
     Clue=0;
     GridNumbers.clear();
-    int setclue=77-hardness*6;
-    qDebug()<<"--Grid_Import()...Set Clue to:"<<setclue;
+    qDebug()<<"Import...";
+    MySudokuSolver solver;
     generater.Generate();
     solver.importGrid(generater.getGrid());
-
-    GridNumbers=solver.setClue(setclue);
-    if(GridNumbers.size()!=81)
-        return;
-    FinalGrid.clear();
-    FinalGrid=solver.getFinalGrid0();
+    int setclue=71-hardness*6;
+    std::vector<int> tem=generater.getGrid();//solver.setClue(setclue);
     for(int i=0;i<81;i++)
     {
         //保存每个位置的可能集合
+        GridNumbers.push_back(tem[i]);
         std::set<int> t;
-        t.insert(GridNumbers[i]);
+        t.insert(tem[i]);
         Buttons[i]->BoardButton_UpdateBoard(t);
-        if (GridNumbers[i]!=0)
-        {
-            Buttons[i]->BoardButton_MarkFix(true);
+        if (tem[i]!=0)
             Clue++;
-        }
-        else
-            Buttons[i]->BoardButton_MarkFix(false);
     }
     qDebug()<<"--Import()...Done";
     emit Grid_Clue_Broadcast(Clue);
-    emit Grid_Step_State(0);
     Steps.clear();
-    stepIndex=-1;
+    stepIndex=-0.5;
     ImportFlag=2;
-    Grid_Select(0);
     return;
 }
 
-//保存全局地图GridNumbers
-//保存步骤step
-//保存clue
+//保存全局地图
 void SudokuGridWidget::Grid_OnChangeGridSet(std::set<int> set_,int v)
 {
-    Grid_Select(0);
     qDebug()<<"--Grid_OnChangeGridSet()...";
     MyGridButtonWithBoardMenu *btn=qobject_cast<MyGridButtonWithBoardMenu*>(sender());
     QString name=btn->objectName();
@@ -99,41 +79,34 @@ void SudokuGridWidget::Grid_OnChangeGridSet(std::set<int> set_,int v)
     int y=name.toInt()/10;
     if(ImportFlag==2)
         //Steps步骤保存
-        if(FakeClick==false)//正常点击
-        {
+        if(FakeClick==0)
             if(Steps.size()==10)//满了
             {
-                if(stepIndex==9)//正常进行
+                if(stepIndex==8.5)//正常进行
                 {
                     Steps.pop_front();
                 }
-                else//中途
+                else//正在后退过程中
                 {
-                    while(Steps.size()>stepIndex+1)
+                    while(Steps.size()>stepIndex+1.5)
                         Steps.pop_back();//去掉尾部
-                    if(!stepDirectionForward)
-                        Steps.pop_back();
-                    else
-                        stepIndex+=1;
+                    stepIndex+=1;
                 }
                 Steps.push_back(Step(QPoint(x,y),v));
             }
             else//没满
             {
-                while(Steps.size()>stepIndex+1)
-                    Steps.pop_back();//去掉尾部
-                if(!stepDirectionForward)
-                    Steps.pop_back();
-                else
-                    stepIndex+=1;
                 Steps.push_back(Step(QPoint(x,y),v));
+                stepIndex+=1;
             }
-            stepDirectionForward=true;
-            emit Grid_Step_State(1);
-        }
         else
-            FakeClick=false;
+            FakeClick-=1;
+    qDebug()<<"\tFakeClick="<<FakeClick;
+    //一种情况：位置原来为0，现在set中不是一个有效点
     //原来不为0，现在是设为2+或者是0
+    qDebug()<<"\t("<<x<<","<<y<<")";
+    qDebug()<<"\tGridNumbers[here]="<<GridNumbers[x+y*9-10];
+    qDebug()<<"\tset_.size()="<<set_.size();
     if(GridNumbers[x+y*9-10]!=0&&set_.size()!=2)//原本不为0的点现在填入了不止一个或者没有数字
     {
         Clue-=1;
@@ -158,102 +131,49 @@ void SudokuGridWidget::Grid_OnChangeGridSet(std::set<int> set_,int v)
     }
 }
 
-void SudokuGridWidget::Grid_Pause(bool pauseFlag)
+void SudokuGridWidget::Grid_Pause(bool show)
 {
-    Pause=pauseFlag;
-    qDebug()<<"Pause "<<(pauseFlag?"true":"false");
-    emit Grid_Button_Pause(Pause);
+    Pause!=Pause;
+    qDebug()<<"Pause "<<(show?"true":"false");
 }
 void SudokuGridWidget::Grid_Forward()
 {
-    if(Pause)
-        return;
-    if(stepIndex+1<Steps.size())
+    if(stepIndex+1.5<Steps.size())
     {
-        if(stepDirectionForward)
-            stepIndex+=1;
+        stepIndex+=1;
         qDebug()<<"--Grid_Forward():"<<stepIndex;
-        Step t=Steps[stepIndex];
-        FakeClick=true;
+        Step t=Steps[stepIndex-0.5];
+        FakeClick+=1;
         MyGridButtonWithBoardMenu* btn=Buttons[t.point.x()+t.point.y()*9-10];
         btn->BoardButton_FakeBoardClicked(t.num);
         //此时相当于增加了Steps[stepIndex]一步
     }
-    if(stepIndex+1==Steps.size())
-        emit Grid_Step_State(1);
-    else
-        emit Grid_Step_State(3);
-    stepDirectionForward=true;
+
 }
 void SudokuGridWidget::Grid_Back()
 {
-    if(Pause)
-        return;
     if(stepIndex>0)
     {
-        if(!stepDirectionForward)
-            stepIndex-=1;
+        stepIndex-=1;
         qDebug()<<"--Grid_Back():"<<stepIndex;
-        Step t=Steps[stepIndex];
-        FakeClick=true;
+        Step t=Steps[stepIndex+0.5];
+        FakeClick+=1;
         MyGridButtonWithBoardMenu* btn=Buttons[t.point.x()+t.point.y()*9-10];
         btn->BoardButton_FakeBoardClicked(t.num);
+
     }
-    if(stepIndex==0)
-        emit Grid_Step_State(2);
-    else
-        emit Grid_Step_State(3);
-    stepDirectionForward=false;
 }
 void SudokuGridWidget::Check()
 {
     if(Clue==81)
     {
-        bool Safeflag=true;
-
-        for(int i=0;i<81;i++)
-        {
-            int v=GridNumbers[i];
-            int x=i%9;
-            int y=i/9;
-            for(int j=0;j<9;j++)
-            {
-                if(j!=x&&GridNumbers[y*9+j]==v)
-                {
-                    Safeflag=false;
-                    break;
-                }
-                if(j!=y&&GridNumbers[j*9+x]==v)
-                {
-                    Safeflag=false;
-                    break;
-                }
-                int BIndex=x/3*3+y/3*27+j/3*9+j%3;
-                if(BIndex!=i&&GridNumbers[BIndex]==v)//同Box
-                {
-                    Safeflag=false;
-                    break;
-                }
-            }
-            if(!Safeflag)//不安全
-                break;
-        }
-        if(Safeflag)
-        {
-            qDebug()<<"Win!"<<endl;
-            emit Grid_Finished();
-            QMessageBox* box=new QMessageBox(this);
-            box->setText("You Win!");
-            box->show();
-        }
+        qDebug()<<"Win!"<<endl;
+        emit Grid_Finished();
     }
 }
 void SudokuGridWidget::Grid_Select(int v)
 {
-    if(Pause)
-        return;
     if(ImportFlag<2)
-        return;
     qDebug()<<"--Grid_Select("<<v<<")";
     if(v==0||v==selectNumber)//回复原状
     {
@@ -268,12 +188,13 @@ void SudokuGridWidget::Grid_Select(int v)
     {
         for(int i=0;i<81;i++)
         {
+
             MyGridButtonWithBoardMenu* btn=Buttons[i];
-            if(GridNumbers[i]==v)//该点恰好为同数字点
+            if(GridNumbers[i]==v)//同数字点
             {
                 btn->SetColor(QString("ss"));
             }
-            else//
+            else
             {
                 int x=i%9;
                 int y=i/9;
@@ -290,43 +211,11 @@ void SudokuGridWidget::Grid_Select(int v)
                 {
                     btn->SetColor("");
                 }
-                else//该点不安全
+                else//不安全但是不是v
                     btn->SetColor("s");
             }
-
         }
         selectNumber=v;
     }
 
-}
-void SudokuGridWidget::Grid_AutoStep()
-{
-    if(Pause)
-        return;
-    srand(time(NULL));
-    if(ImportFlag<2)
-        return;
-    if(Clue==81)
-        return;
-    while(1)
-    {
-        int index=rand()%81;
-        MyGridButtonWithBoardMenu* btn=Buttons[index];
-        if(btn->Marks.find(0)!=btn->Marks.end())//可以动的点
-            if((btn->Marks.size()!=2)                         //原来是空的或有多个标记
-             ||(*(btn->Marks.rbegin())!=FinalGrid[index]))//只有一个点但是不是正确的数
-            {
-                qDebug("--Grid_AutoStep()...Point(%d,%d) to %d",index%9+1,index/9+1,FinalGrid[index]);
-                std::set<int> t;
-                t.insert(FinalGrid[index]);
-                Buttons[index]->BoardButton_UpdateBoard(t);
-                if (GridNumbers[index]==0)
-                    Clue++;
-                GridNumbers[index]=FinalGrid[index];
-                emit Grid_Clue_Broadcast(Clue);
-                Check();
-                break;
-            }
-    }
-    return;
 }

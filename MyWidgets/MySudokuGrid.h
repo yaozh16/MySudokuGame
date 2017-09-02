@@ -13,7 +13,6 @@
 #include <GameBase/MySudokuGenerater.h>
 #include <GameBase/MySudokuSolver.h>
 #include <MyWidgets/MyGridButtonWithBoard.h>
-
 class SudokuGridWidget : public QWidget
 {
     Q_OBJECT
@@ -21,26 +20,43 @@ public:
     explicit SudokuGridWidget(QWidget *parent = 0);
     std::vector<int> GridNumbers;
 private:
+    MySudokuGenerater generater;
+    MySudokuSolver solver;
+    std::vector<int> FinalGrid;
+
+    std::vector<MyGridButtonWithBoardMenu*> Buttons;
+
     struct Step
     {
         QPoint point;
-        std::set<int> set;
-        Step(QPoint p, std::set<int> s):point(p),set(s){;}
+        int num;
+        Step(QPoint p, int Number):point(p),num(Number){;}
     };
     std::deque<Step> Steps;
     int stepIndex;
-    int Clue;
-    bool ImportFlag;
-    bool Pause;
-    int Check();
-signals:
 
+    int Clue;
+    int ImportFlag;
+
+    int selectNumber;
+    void Check();
+    bool FakeClick;
+    bool Pause;
+    bool stepDirectionForward;
+signals:
+    void Grid_Clue_Broadcast(int clue);
+    void Grid_Finished();
+    //0表示都不行,1表示可后退不可向前,2表示可向前不可后退,3表示都可以
+    void Grid_Step_State(int i);
+    void Grid_Button_Pause(bool pauseFlag);
 public slots:
-    void Grid_OnChangeGridSet(std::set<int> set_);
-    void Grid_Import(int clue=17);
-    void Grid_Pause(bool show);
+    void Grid_OnChangeGridSet(std::set<int> set_, int v);
+    void Grid_Import(int hardness=1);
+    void Grid_Pause(bool pauseFlag);
     void Grid_Forward();
     void Grid_Back();
+    void Grid_Select(int i);
+    void Grid_AutoStep();
 };
 
 #endif // SUDOKUGRIDWIDGET_H

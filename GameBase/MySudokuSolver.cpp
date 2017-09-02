@@ -8,6 +8,13 @@ int MySudokuSolver::Init()
     Grid.clear();
     for(int i=0;i<81;i++)
         Grid.push_back(0);
+    RecordArray.clear();
+    RecordRow.clear();
+    RecordBox.clear();
+    numGrid.clear();
+    numRecordRow.clear();
+    numRecordArray.clear();
+    numRecordBox.clear();
     for(int i=0;i<9;i++)
     {
         RecordArray.push_back(9);
@@ -41,8 +48,10 @@ int MySudokuSolver::importGrid(std::vector<int> Grid_)
         }
 #ifdef My_Debug
     std::cout<<"--MySudokuSolver:Import puzzle:"<<std::endl;
-    Output();
+    Output(Grid);
+    PauseDebug();
 #endif
+    return 0;
 }
 int  MySudokuSolver::isSafe(int x,int y,int v)
 {
@@ -52,64 +61,13 @@ int  MySudokuSolver::isSafe(int x,int y,int v)
     }
     return 0;
 }
-#ifdef My_Debug
-int MySudokuSolver::Output(int *Grid_)
-{
-    if(Grid_==NULL)
-        Grid_=Grid;
-    int n=ClueNumber(Grid_);
-    if(n>0)
-        std::cout<<"Clue = "<<n<<std::endl;
-    std::cout<<"------------------------------"<<std::endl;
-    for(int x=0;x<9;x++)
-        for(int y=0;y<9;y++)
-        {
-            std::cout<<" ";
-            if(Grid_[x*9+y]>0)
-                std::cout<<Grid_[x*9+y]<<" ";
-            else
-                std::cout<<"  ";
-            if(y%3==2)
-                std::cout<<"|";
-            if(y==8)
-            {
-                std::cout<<std::endl;
-                if(x%3==2)
-                    std::cout<<"------------------------------"<<std::endl;
-            }
-        }
-    return 0;
-}
-int MySudokuSolver::Output(bool *Grid)
-{
-    if(Grid==NULL)
-        return 1;
-    std::cout<<"------------------------------"<<std::endl;
-    for(int x=0;x<9;x++)
-        for(int y=0;y<9;y++)
-        {
-            std::cout<<" "<<((Grid[x*9+y])?"#":" ")<<" ";
-            if(y%3==2)
-                std::cout<<"|";
-            if(y==8)
-            {
-                std::cout<<std::endl;
-                if(x%3==2)
-                    std::cout<<"------------------------------"<<std::endl;
-            }
-        }
-    return 0;
-}
-#endif
+
 int MySudokuSolver::SetGrid(int x,int y,int v)
 {
     clueNumber+=1;
     if(fillNumber>0)
         fillNumber-=1;
     ChangeFlag=true;
-#ifdef MyStepShow
-    std::cout<<"("<<x<<","<<y<<")--"<<v<<std::endl;
-#endif
     v-=1;
 
     int Box_index=GetBoxIndex(x,y);
@@ -422,7 +380,7 @@ int MySudokuSolver::GuessWithSearch(int xStart,int yStart)
             FinalGrids.push_back(tem);
         }
     }
-
+    //填充判断
     else if(Grid[xStart-1+(yStart-1)*9]>0)
     {
         GuessWithSearch(xStart+1,yStart);
@@ -430,6 +388,7 @@ int MySudokuSolver::GuessWithSearch(int xStart,int yStart)
     else
         for(int i=1;i<10;i++)
         {
+            //尝试--安全
             if(isSafe(xStart,yStart,i)==0)
             {
                 //保存
@@ -437,33 +396,34 @@ int MySudokuSolver::GuessWithSearch(int xStart,int yStart)
                 state.Save(this);
                 //设置
                 SetGrid(xStart,yStart,i);
-                //继续进行
-                if (Search()==0);
-                {
+                //逻辑计算完善地图
+                int ret=Search();
+                if (ret==0);
                     GuessWithSearch(xStart+1,yStart);
-                }
-                //恢复
+                //退回该步时恢复
                 state.Load(this);
             }
-            else
-                continue;
         }
     return 0;
 }
-
+//在已经Import之后才能调用
 std::vector<int> MySudokuSolver::setClue(int number)
 {
     std::vector<int> tem;
+    for(int i=0;i<81;i++)
+        tem.push_back(0);
     if(Grid.size()!=81)
-        return tem;
-    number-=ClueNumber(Grid);
-    if(number<=0)
         return tem;
     filledGrid.clear();
     filledGrid=Grid;
+    //计算
     GuessWithSearch(1,1);
     if(FinalGrids.size()<1)
         return tem;
+    number-=ClueNumber(Grid);
+    if(number<0)
+        return filledGrid;
+
     std::vector<int> pFinal=*(FinalGrids.begin());
     while (number>0)
     {
@@ -475,9 +435,7 @@ std::vector<int> MySudokuSolver::setClue(int number)
             number-=1;
         }
     }
-    for(int i=0;i<81;i++)
-        tem.push_back(filledGrid[i]);
-    return tem;
+    return filledGrid;
 }
 
 int MySudokuSolver::SolveWithSearch()
@@ -494,7 +452,7 @@ int MySudokuSolver::SolveWithSearch()
     {
 #ifdef My_Debug
         std::cout<<"no Solution"<<std::endl;
-        Output();
+        Output(Grid);
 #endif
         return 2;
     }
@@ -503,10 +461,10 @@ int MySudokuSolver::SolveWithSearch()
 #ifdef My_Debug
         std::cout<<"Solution ="<<FinalGrids.size()<<std::endl;
         int count=0;
-        for(auto iter:FinalGrids)
+        for(int i=0;i<FinalGrids.size();i++)
         {
                 count+=1;
-                Output(&(*(iter)));
+                Output(FinalGrids[i]);
         }
 #endif
         return 0;
@@ -577,3 +535,48 @@ int MySudokuSolver::Check(std::vector<int> Grid)
     }
     return 0;
 }
+#ifdef My_Debug
+int MySudokuSolver::Output(std::vector<int> Grid)
+{
+    int n=ClueNumber(Grid);
+    if(n>0)
+        std::cout<<"Clue = "<<n<<std::endl;
+    std::cout<<"------------------------------"<<std::endl;
+    for(int x=0;x<9;x++)
+        for(int y=0;y<9;y++)
+        {
+            std::cout<<" ";
+            if(Grid[x*9+y]>0)
+                std::cout<<Grid[x*9+y]<<" ";
+            else
+                std::cout<<"  ";
+            if(y%3==2)
+                std::cout<<"|";
+            if(y==8)
+            {
+                std::cout<<std::endl;
+                if(x%3==2)
+                    std::cout<<"------------------------------"<<std::endl;
+            }
+        }
+    return 0;
+}
+int MySudokuSolver::Output(std::vector<bool> Grid)
+{
+    std::cout<<"------------------------------"<<std::endl;
+    for(int x=0;x<9;x++)
+        for(int y=0;y<9;y++)
+        {
+            std::cout<<" "<<((Grid[x*9+y]==true)?"#":" ")<<" ";
+            if(y%3==2)
+                std::cout<<"|";
+            if(y==8)
+            {
+                std::cout<<std::endl;
+                if(x%3==2)
+                    std::cout<<"------------------------------"<<std::endl;
+            }
+        }
+    return 0;
+}
+#endif

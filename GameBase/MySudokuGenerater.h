@@ -23,10 +23,13 @@ public:
     ~MySudokuGenerater(){if(Grid.size()>0) Grid.clear();}
     int Generate();
     std::vector<int> getGrid();
+    void Import(std::vector<int> newGrid);
+    void SaveSeed(int i);
     int Print();
+    int SeedGrid();
 private:
     int Init();
-    int SeedGrid();
+
     int towerSwap();
     int floorSwap();
     int arraySwap();

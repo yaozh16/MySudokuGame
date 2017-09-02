@@ -1,5 +1,5 @@
-#include "MySudokuGenerater.h"
-#include "MySudokuSolver.h"
+#include "GameBase/MySudokuGenerater.h"
+#include "GameBase/MySudokuSolver.h"
 #include <iostream>
 int main()
 {
@@ -15,11 +15,12 @@ int main()
     for(int p=0;p<mi.size();p++)
         for(int q=0;q<mi[p].size();q++)
             std::cout<<mi[p][q]<<std::endl;*/
-    //MySudokuGenerater generater;
-    //MySudokuSolver solver;
-    //generater.Generate();
-    //solver.importGrid(generater.getGrid());
+    MySudokuGenerater generater;
+    MySudokuSolver solver;
+    generater.Generate();
+    std::cout<<"Done1"<<std::endl;
+    solver.importGrid(generater.getGrid());
     //solver.SolveWithSearch();
-    //solver.Output(solver.setClue(30));
+    solver.Output(solver.setClue(30));
     std::cout<<"Done"<<std::endl;
 }
