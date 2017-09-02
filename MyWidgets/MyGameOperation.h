@@ -21,7 +21,10 @@ private:
     QPushButton* PushButton_Restart;
     QPushButton* PushButton_Back;
     QPushButton* PushButton_Forward;
+    QPushButton* PushButton_Config;
+    QPushButton* Config_Design;
     bool GamePause;
+    int DesignPhase;
     int count;
     int hardness;
     QTimer* timer;
@@ -33,7 +36,8 @@ signals:
     void Game_Pause_Clicked(bool);
     void Game_Back_Operation();
     void Game_Forward_Operation();
-    void Game_AutoFill();
+    void Game_DesignMode(int DesignMode);//发送设计模式命令
+    void Game_DesignGo();//发送计算命令
 public slots:
     void Game_On_Restart_Clicked();
     void Game_On_Pause_Clicked();
@@ -41,6 +45,8 @@ public slots:
     void Game_On_HardChanges();
     void Game_Clue_Show(int i);
     void Game_Finish();
+    void Game_DesignButton();
+    void Game_GoButton();
     //0表示都不可以
     //1表示可后退不可向前
     //2表示可向前不可后退

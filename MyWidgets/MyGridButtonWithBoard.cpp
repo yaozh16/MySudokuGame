@@ -66,7 +66,7 @@ MyGridButtonWithBoardMenu::MyGridButtonWithBoardMenu(QWidget *parent) :
     }
     setLayout(BoardButtonLabelLayout);
 }
-//获取按键当前按下的数字并且做状态记录
+//获取弹出菜单按键当前按下的数字并且做状态记录
 void MyGridButtonWithBoardMenu::BoardButton_OnBoardClicked()
 {
     menuOnFlag=false;
@@ -142,13 +142,14 @@ void MyGridButtonWithBoardMenu::SetColor(QString pre)
     style+="border-radius:5px}";
     setStyleSheet(style);
 }
+//被主按键按下
 void MyGridButtonWithBoardMenu::BoardButton_ShowMenu()
 {
     if(PauseFlag)
         return;
     if(Marks.find(0)==Marks.end())//没有0
         return;
-    if(WorkingMode==0)
+    if(WorkingMode==0||WorkingMode==10)
         if(menuOnFlag)
         {
             menuOnFlag=false;
@@ -159,7 +160,7 @@ void MyGridButtonWithBoardMenu::BoardButton_ShowMenu()
             menuOnFlag=true;
             menu->exec(mapToGlobal(QPoint(60,0)));
         }
-    else
+    else if(WorkingMode<10&&WorkingMode>0)
     {
         for(int i=0;i<9;i++)
            States[i]=false;
@@ -204,4 +205,31 @@ void MyGridButtonWithBoardMenu::BoardButton_Pause(bool pauseFlag)
                 else
                     Labels[i-1]->show();
     }
+}
+void MyGridButtonWithBoardMenu::BoardButton_SetWorkingMode(int mode)
+{
+    if(menuOnFlag)
+    {
+        menuOnFlag=false;
+        menu->close();
+    }
+    WorkingMode=mode;
+    if(WorkingMode==10)
+    {
+        Marks.insert(0);
+    }
+}
+void MyGridButtonWithBoardMenu::BoardButton_ReInit()
+{
+    States.clear();
+    Marks.clear();
+    for(int i=0;i<9;i++)
+    {
+        States.push_back(false);
+        SetColor("");
+        Labels[i]->setStyleSheet( "border-image: url(:/resources/numbers/number"+QString::number(i+1)+".png);");
+        Labels[i]->hide();
+    }
+    menuOnFlag=false;
+    PauseFlag=false;
 }

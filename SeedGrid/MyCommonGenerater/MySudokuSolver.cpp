@@ -296,13 +296,6 @@ int MySudokuSolver::SearchBox(int b,int v)
             else
                 index=temIndex;
         }
-
-#ifdef My_Debug
-        if(s.size()!=1)
-        {
-            return 1;
-        }
-#endif
         if(isSafe(index%9+1,index/9+1,*(s.begin()))==0)
             SetGrid(index%9+1,index/9+1,*(s.begin()));
         else
@@ -369,10 +362,8 @@ int MySudokuSolver::GuessWithSearch(int xStart,int yStart)
     {
         if(Check(Grid)==0)
         {
-            std::vector<int> tem;
-            for(int i=0;i<81;i++)
-                tem.push_back(Grid[i]);
-            FinalGrids.push_back(tem);
+            FinalGrids.push_back(Grid);
+            FinalGuessCounts.push_back(GuessCount);
         }
     }
     //填充判断
@@ -381,6 +372,8 @@ int MySudokuSolver::GuessWithSearch(int xStart,int yStart)
         GuessWithSearch(xStart+1,yStart);
     }
     else
+    {
+        GuessCount+=1;
         for(int i=1;i<10;i++)
         {
             //尝试--安全
@@ -399,6 +392,8 @@ int MySudokuSolver::GuessWithSearch(int xStart,int yStart)
                 state.Load(this);
             }
         }
+        GuessCount-=1;
+    }
     return 0;
 }
 //在已经Import之后才能调用
@@ -444,6 +439,8 @@ std::vector<int> MySudokuSolver::setClue(int number)
 int MySudokuSolver::SolveWithSearch()
 {
     FinalGrids.clear();
+    FinalGuessCounts.clear();
+    GuessCount=0;
     GuessWithSearch(1,1);
     return FinalGrids.size();
 }

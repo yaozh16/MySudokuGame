@@ -2,16 +2,9 @@
 #include <stdlib.h>
 #include <cstring>
 #include <vector>
-//#define My_Debug
-//#define MyQt
+#include <deque>
 #define NewApproach
 
-
-#ifdef My_Debug
-#include <iostream>
-#include <iomanip>
-#include <string>
-#endif
 
 
 
@@ -19,26 +12,64 @@ class MySudokuSolver
 {
 public:
     MySudokuSolver(){Init();}
-    ~MySudokuSolver(){
+    ~MySudokuSolver()
+    {
         Grid.clear();
         filledGrid.clear();
-        for(int i=0;i<FinalGrids.size();i++)
-                FinalGrids[i].clear();
+        FinalGuessCounts.clear();
+        FinalGrids.clear();
     }
     int importGrid(std::vector<int> Grid);
     int SolveWithSearch();
     int Search();
+    int ClueNumber(std::vector<int> Grid);
+
     std::vector<int> setClue(int number=30);
     std::vector<int> getGrid(){return Grid;}
-    std::vector<int> getFinalGrid0(){return *(FinalGrids.begin());}
+    std::vector<int> getFinalGrid0()
+    {
+        if(FinalGrids.size()>0)
+            return *(FinalGrids.begin());
+        else
+        {
+           std::vector<int> t;
+           for(int i=0;i<81;i++)
+               t.push_back(0);
+           return t;
+        }
+    }
+    int getGuessCount0()
+    {
+        if(FinalGuessCounts.size()>0)
+            return FinalGuessCounts[0];
+        else
+            return -1;
+    }
+    std::vector<std::vector<int>> getFinalGrids(){return FinalGrids;}
+    std::vector<int> getGuessCounts(){return FinalGuessCounts;}
+    std::vector<int> getLeastAndMostDepth()
+    {
+        std::deque<int> t;
+        t.push_back(81);
+        t.push_back(-1);
+        for(int i=0;i<FinalGuessCounts.size();i++)
+        {
+            if(FinalGuessCounts[i]<t[0])
+                t[0]=FinalGuessCounts[i];
+            if(FinalGuessCounts[i]>t[1])
+                t[1]=FinalGuessCounts[i];
+        }
+        std::vector<int> tp;
+        tp.push_back(t[0]);
+        tp.push_back(t[1]);
+        return tp;
+    }
     int isSafe(int x,int y,int v);
     std::vector<std::vector<bool>> numGrid;
+
 private:
     int Check(std::vector<int> Grid);
     int Init();
-    int ClueNumber(std::vector<int> Grid);
-
-
 
     int SetGrid(int x,int y,int v);
 
@@ -49,6 +80,7 @@ private:
     int SearchArray(int a,int v);
     int SearchBox(int b,int v);
     int GuessWithSearch(int xStart,int yStart);
+
     std::vector<int> RecordRow;
     std::vector<int> RecordArray;
     std::vector<int> RecordBox;
@@ -62,6 +94,8 @@ private:
     bool ChangeFlag;
     int clueNumber;
     std::vector<std::vector<int>> FinalGrids;
+    std::vector<int> FinalGuessCounts;
+    int GuessCount;
     int fillNumber;
     std::vector<int> filledGrid;
     friend class ParaState;

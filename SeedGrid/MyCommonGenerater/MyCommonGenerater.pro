@@ -5,8 +5,10 @@ CONFIG -= qt
 
 SOURCES += main.cpp \
     MySudokuSolver.cpp \
-    MySudokuCommonGenerater.cpp
+    MySudokuCommonGenerater.cpp \
+    MyDifficultyEvaluater.cpp
 
 HEADERS += \
     MySudokuSolver.h \
-    MySudokuCommonGenerater.h
+    MySudokuCommonGenerater.h \
+    MyDifficultyEvaluater.h

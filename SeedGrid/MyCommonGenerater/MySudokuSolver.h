@@ -21,7 +21,28 @@ public:
     int Search();
     std::vector<int> setClue(int number=30);
     std::vector<int> getGrid(){return Grid;}
-    std::vector<int> getFinalGrid0(){return *(FinalGrids.begin());}
+    std::vector<int> getFinalGrid0()
+    {
+        if(FinalGrids.size()>0)
+            return *(FinalGrids.begin());
+        else
+        {
+           std::vector<int> t;
+           for(int i=0;i<81;i++)
+               t.push_back(0);
+           return t;
+        }
+    }
+    int getGuessCount0()
+    {
+        if(FinalGuessCounts.size()>0)
+            return FinalGuessCounts[0];
+        else
+            return -1;
+    }
+    std::vector<std::vector<int>> getFinalGrids(){return FinalGrids;}
+    std::vector<int> getGuessCounts(){return FinalGuessCounts;}
+
     int isSafe(int x,int y,int v);
     std::vector<std::vector<bool>> numGrid;
 private:
@@ -53,6 +74,8 @@ private:
     bool ChangeFlag;
     int clueNumber;
     std::vector<std::vector<int>> FinalGrids;
+    std::vector<int> FinalGuessCounts;
+    int GuessCount;
     int fillNumber;
     std::vector<int> filledGrid;
     friend class ParaState;

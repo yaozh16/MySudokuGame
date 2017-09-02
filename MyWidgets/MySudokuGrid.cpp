@@ -11,7 +11,8 @@ SudokuGridWidget::SudokuGridWidget(QWidget *parent) :
     ImportFlag(0),
     FakeClick(false),
     stepIndex(-1),
-    stepDirectionForward(true)
+    stepDirectionForward(true),
+    DesignMode(0)
 {
     srand(time(NULL));
     Buttons.clear();
@@ -47,6 +48,8 @@ SudokuGridWidget::SudokuGridWidget(QWidget *parent) :
 
 void SudokuGridWidget::Grid_Import(int hardness)
 {
+    if(DesignMode!=0)
+        return;
     FakeClick=false;
     selectNumber=0;
     ImportFlag=1;
@@ -145,26 +148,29 @@ void SudokuGridWidget::Grid_OnChangeGridSet(std::set<int> set_,int v)
         {
             Clue++;
             GridNumbers[x+y*9-10]=*(set_.rbegin());
-            Check();
+            Grid_CompleteCheck();
         }
         else
             GridNumbers[x+y*9-10]=*(set_.rbegin());
     }
     if(ImportFlag==2)
-    {
         qDebug()<<"\tClue is now: "<<Clue;
-        emit Grid_Clue_Broadcast(Clue);
-    }
+
+    emit Grid_Clue_Broadcast(Clue);
 }
 
 void SudokuGridWidget::Grid_Pause(bool pauseFlag)
 {
+    if(DesignMode!=0)
+        return;
     Pause=pauseFlag;
     qDebug()<<"Pause "<<(pauseFlag?"true":"false");
     emit Grid_Button_Pause(Pause);
 }
 void SudokuGridWidget::Grid_Forward()
 {
+    if(DesignMode!=0)
+        return;
     if(Pause)
         return;
     if(stepIndex+1<Steps.size())
@@ -186,6 +192,8 @@ void SudokuGridWidget::Grid_Forward()
 }
 void SudokuGridWidget::Grid_Back()
 {
+    if(DesignMode!=0)
+        return;
     if(Pause)
         return;
     if(stepIndex>0)
@@ -204,8 +212,10 @@ void SudokuGridWidget::Grid_Back()
         emit Grid_Step_State(3);
     stepDirectionForward=false;
 }
-void SudokuGridWidget::Check()
+void SudokuGridWidget::Grid_CompleteCheck()
 {
+    if(DesignMode!=0)
+        return;
     if(Clue==81)
     {
         bool Safeflag=true;
@@ -260,7 +270,8 @@ void SudokuGridWidget::Check()
 }
 void SudokuGridWidget::Grid_Select(int v)
 {
-
+    if(DesignMode!=0)
+        return;
     if(Pause)
         return;
     if(ImportFlag<2)
@@ -314,6 +325,8 @@ void SudokuGridWidget::Grid_Select(int v)
 }
 void SudokuGridWidget::Grid_AutoStep()
 {
+    if(DesignMode!=0)
+        return;
     if(Pause)
         return;
     srand(time(NULL));
@@ -337,9 +350,78 @@ void SudokuGridWidget::Grid_AutoStep()
                     Clue++;
                 GridNumbers[index]=FinalGrid[index];
                 emit Grid_Clue_Broadcast(Clue);
-                Check();
+                Grid_CompleteCheck();
                 break;
             }
     }
     return;
+}
+void SudokuGridWidget::Grid_SetDesignMode(int mode)
+{
+    if(DesignMode==mode)
+        return ;
+    qDebug()<<"--Grid_SetDesignMode("<<mode<<")";
+    Grid_ReInit();
+    DesignMode=mode;
+    if(mode==1)
+        for(int i=0;i<81;i++)
+            Buttons[i]->BoardButton_SetWorkingMode(10);
+    else
+        for(int i=0;i<81;i++)
+            (Buttons[i])->BoardButton_SetWorkingMode(0);
+
+}
+void SudokuGridWidget::Grid_ReInit()
+{
+    FinalGrid.clear();
+    Pause=false;
+    selectNumber=0;
+    ImportFlag=0;
+    FakeClick=false;
+    stepIndex=-1;
+    stepDirectionForward=true;
+    GridNumbers.clear();
+    Clue=0;
+    Steps.clear();
+    for(int i=0;i<81;i++)
+    {
+        GridNumbers.push_back(0);
+        MyGridButtonWithBoardMenu* btn=Buttons[i];
+        btn->BoardButton_ReInit();
+    }
+    qDebug()<<"--Grid_ReInit()...Done";
+}
+void SudokuGridWidget::Grid_DesignGo()
+{
+    qDebug()<<"--Grid_DesignGo()...Trying to solve...";
+    solver.importGrid(GridNumbers);
+    int t=solver.SolveWithSearch();
+     qDebug()<<"\tSolve...Done";
+    if(t>0)
+    {
+        FinalGrid=solver.getFinalGrid0();
+        std::vector<int> depths=solver.getLeastAndMostDepth();
+        QMessageBox* box=new QMessageBox;
+        QString Info;
+        Info+="Original Clue Number is:\t"+QString::number(solver.ClueNumber(GridNumbers));
+        Info+="\r\nDetected Clue Found in First Search:"+QString::number(solver.ClueNumber(solver.getGrid()));
+        Info+="\r\nThe Solution Number is:\t"+QString::number(t);
+        Info+="\r\nNeeded Least Guess is:"+QString::number(depths[0]);
+        Info+="\r\nNeeded  Most Guess is:"+QString::number(depths[1]);
+
+        box->setText(Info);
+        box->setWindowIcon(QIcon(":/resources/others/SudokuGame.jpg"));
+        box->show();
+    }
+    else
+    {
+        QMessageBox* box=new QMessageBox;
+        QString Info;
+        Info+="Original Clue Number is:\t"+QString::number(solver.ClueNumber(GridNumbers));
+        Info+="\r\nDetected Combined Clue:"+QString::number(solver.ClueNumber(solver.getGrid()));
+        Info+="\r\nFailed to find Solution";
+        box->setText(Info);
+        box->setWindowIcon(QIcon(":/resources/others/SudokuGame.jpg"));
+        box->show();
+    }
 }

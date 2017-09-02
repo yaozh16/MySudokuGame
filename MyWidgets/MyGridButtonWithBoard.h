@@ -24,6 +24,7 @@ public:
     void BoardButton_FakeBoardClicked(int index);
     void SetColor(QString pre="");
     void BoardButton_MarkFix(bool fix);
+    void BoardButton_ReInit();
 private:
     QMenu* menu;
     bool menuOnFlag;
@@ -37,15 +38,8 @@ public slots:
     void BoardButton_OnBoardClicked();
     void BoardButton_ShowMenu();
     void BoardButton_Pause(bool pauseFlag);
-    void BoardButton_SetWorkingMode(int mode)
-    {
-        if(menuOnFlag)
-        {
-            menuOnFlag=false;
-            menu->close();
-        }
-        WorkingMode=mode;
-    }
+    void BoardButton_SetWorkingMode(int mode);
+
 };
 
 #endif // MYGRIDBOARDMENU_H

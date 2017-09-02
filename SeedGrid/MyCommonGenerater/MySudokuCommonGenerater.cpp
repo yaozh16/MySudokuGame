@@ -132,7 +132,7 @@ int MySudokuGenerater::SeedGrid()
 {
     std::string tem;
     std::ifstream fin;
-    int count=1466;
+    int count=rand()%1400+20;
     fin.open("Seed1.txt");
     for(int i=0;i<count;i++)
         std::getline(fin,tem);

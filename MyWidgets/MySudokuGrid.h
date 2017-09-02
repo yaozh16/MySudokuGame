@@ -38,11 +38,13 @@ private:
     int Clue;
     int ImportFlag;
 
-    int selectNumber;
-    void Check();
+    int selectNumber;//选中的数字
+    int DesignMode;
+    void Grid_CompleteCheck();
     bool FakeClick;
     bool Pause;
     bool stepDirectionForward;
+
 signals:
     void Grid_Clue_Broadcast(int clue);
     void Grid_Finished();
@@ -55,8 +57,12 @@ public slots:
     void Grid_Pause(bool pauseFlag);
     void Grid_Forward();
     void Grid_Back();
-    void Grid_Select(int i);
-    void Grid_AutoStep();
+    void Grid_Select(int i);//选择
+    void Grid_AutoStep();//自动走步
+    void Grid_SetDesignMode(int mode);
+    void Grid_DesignGo();
+    void Grid_ReInit();
+
 };
 
 #endif // SUDOKUGRIDWIDGET_H

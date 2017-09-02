@@ -11,13 +11,17 @@ int main(int argc, char *argv[])
     generater.Print(generater.getGrid());
     MySudokuSolver solver;
 
+    std::vector<int> t=generater.getGrid();
+    generater.Print(t);
     while(1)
     {
-        generater.Generate();
-        solver.importGrid(generater.getGrid());
-        solver.SolveWithSearch();
-        generater.Print(solver.setClue(81));
-        system("pause");
+        int x,y,v;
+        solver.importGrid(t);
+        std::cout<<"Solution="<<solver.SolveWithSearch()<<endl;
+        std::cout<<"First Guess="<<solver.getGuessCount0()<<endl;
+        std::cout<<"input x y v:";
+        std::cin>>x>>y>>v;
+        t[x+9*y-10]=v;
     }
     return 0;
 }

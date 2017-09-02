@@ -50,5 +50,8 @@
         <file>resources/numbers/f9.png</file>
         <file>SeedGrid/Seed1.txt</file>
         <file>resources/others/SudokuGame.jpg</file>
+        <file>resources/others/Design.png</file>
+        <file>resources/others/Go.png</file>
+        <file>resources/operation/Config.png</file>
     </qresource>
 </RCC>

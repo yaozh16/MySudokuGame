@@ -2,7 +2,8 @@
 
 GameOperationWidget::GameOperationWidget(QWidget *parent) :
     QWidget(parent),
-    GamePause(false)
+    GamePause(false),
+    DesignPhase(0)
 {
     timer=new QTimer(this);
     connect(timer,&QTimer::timeout,this,&GameOperationWidget::Game_On_Timer);
@@ -101,10 +102,48 @@ GameOperationWidget::GameOperationWidget(QWidget *parent) :
         LCD_Clue->display("0");
         GameOperationLayout->addWidget(LCD_Clue,1,8,1,1);
     }
+    //设置按钮
+    {
+        PushButton_Config=new QPushButton;
+        PushButton_Config->setObjectName("PushButton_Config");
+        PushButton_Config->setFixedSize(60,60);
+        QString style;
+        style+="QPushButton{";
+        style+="border-image: url(:/resources/operation/Config.png);}";
+        PushButton_Config->setFlat(true);
+        PushButton_Config->setStyleSheet(style);
+        DesignPhase=0;
+        QMenu* menu=new QMenu;
+        menu->setObjectName("ConfigMenu");
+        QGridLayout* Configmenulayout=new QGridLayout;
+        menu->setLayout(Configmenulayout);
+        //设计按钮
+        {
+            QPushButton* DesignButton=new QPushButton(PushButton_Config);
+            DesignButton->setStyleSheet("border-image: url(:/resources/others/Design.png);}");
+            DesignButton->setObjectName("DesignButton");
+            DesignButton->setFixedSize(40,40);
+            connect(DesignButton,SIGNAL(clicked(bool)),this,SLOT(Game_DesignButton()));
+            Configmenulayout->addWidget(DesignButton,1,1,1,1);
+        }
+        //计算按钮
+        {
+            QPushButton* GoButton=new QPushButton(PushButton_Config);
+            GoButton->setStyleSheet("border-image: url(:/resources/others/Go.png);}");
+            GoButton->setObjectName("DesignButton");
+            GoButton->setFixedSize(40,40);
+            connect(GoButton,SIGNAL(clicked(bool)),this,SLOT(Game_GoButton()));
+            Configmenulayout->addWidget(GoButton,2,1,1,1);
+        }
+        PushButton_Config->setMenu(menu);
+        GameOperationLayout->addWidget(PushButton_Config,1,9,1,1);
+    }
     setLayout(GameOperationLayout);
 }
 void GameOperationWidget::Game_On_Restart_Clicked()
 {
+    if(DesignPhase!=0)
+        Game_DesignButton();
     PushButton_Pause->setStyleSheet("QPushButton{border-image: url(:/resources/operation/Pause.png);}");
     PushButton_Pause->show();
     timer->stop();
@@ -116,6 +155,8 @@ void GameOperationWidget::Game_On_Restart_Clicked()
 }
 void GameOperationWidget::Game_On_Pause_Clicked()
 {
+    if(DesignPhase!=0)
+        return;
     GamePause=!GamePause;
     if(GamePause)
         PushButton_Pause->setStyleSheet("QPushButton{border-image: url(:/resources/operation/GoOn.png);}");
@@ -137,7 +178,8 @@ void GameOperationWidget::Game_On_Timer()
 }
 void GameOperationWidget::Game_On_HardChanges()
 {
-
+    if(DesignPhase!=0)
+        return;
     QPushButton* ac=qobject_cast<QPushButton*>(sender());
     QString name=ac->objectName();
     name.remove(0,4);//去除"Hard"
@@ -165,4 +207,30 @@ void GameOperationWidget::Game_Step_Update(int index)
     else
         PushButton_Forward->setStyleSheet("QPushButton{border-image: url(:/resources/operation/NForward.png);}");
 
+}
+void GameOperationWidget::Game_DesignButton()
+{
+    if(DesignPhase==0)
+    {
+        DesignPhase=1;
+        timer->stop();
+        LCD_Clue->display("0");
+        LCD_Time->display("0es");
+        GamePause=false;
+    }
+    else
+    {
+        DesignPhase=0;
+    }
+    qDebug()<<"--Game_DesignButton()";
+    emit Game_DesignMode(DesignPhase);
+}
+void GameOperationWidget::Game_GoButton()
+{
+    if(DesignPhase==0)//设计模式没有开启
+        return;
+    else
+    {
+        emit Game_DesignGo();
+    }
 }

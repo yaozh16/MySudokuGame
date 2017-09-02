@@ -7,6 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 
     ui->setupUi(this);
+
     this->setWindowIcon(QIcon("/resources/others/SudokuGame.jpg"));
 
     this->setWindowTitle("My Sudoku Game");
@@ -24,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //游戏控制面板
     My_Game_Operation_Widget=new GameOperationWidget(this);
-    My_Game_Operation_Widget->setGeometry(1,1,540,80);
+    My_Game_Operation_Widget->setGeometry(1,1,630,80);
     My_Game_Operation_Widget->setContentsMargins(10,10,10,10);
 
     Init();
@@ -43,6 +44,9 @@ int MainWindow::Init()
     connect(My_Game_Operation_Widget,SIGNAL(Game_Restart_Clicked(int)),My_Sudoku_Grid_Widget,SLOT(Grid_Import(int)));
     connect(My_Game_Operation_Widget,SIGNAL(Game_Back_Operation()),My_Sudoku_Grid_Widget,SLOT(Grid_Back()));
     connect(My_Game_Operation_Widget,SIGNAL(Game_Forward_Operation()),My_Sudoku_Grid_Widget,SLOT(Grid_Forward()));
+    connect(My_Game_Operation_Widget,SIGNAL(Game_DesignMode(int)),My_Sudoku_Grid_Widget,SLOT(Grid_SetDesignMode(int)));
+    connect(My_Game_Operation_Widget,SIGNAL(Game_DesignGo()),My_Sudoku_Grid_Widget,SLOT(Grid_DesignGo()));
+
     connect(My_Sudoku_Grid_Widget,SIGNAL(Grid_Clue_Broadcast(int)),My_Game_Operation_Widget,SLOT(Game_Clue_Show(int)));
     connect(My_Sudoku_Grid_Widget,SIGNAL(Grid_Finished()),My_Game_Operation_Widget,SLOT(Game_Finish()));
     connect(My_Sudoku_Number_Widget,SIGNAL(Number_SelectBroadCast(int)),My_Sudoku_Grid_Widget,SLOT(Grid_Select(int)));
